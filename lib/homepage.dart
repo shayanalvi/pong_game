@@ -1,22 +1,137 @@
-import 'package:flutter/material.dart';
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
 
-class HomePage extends StatelessWidget {
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:ponggame/ball.dart';
+import 'package:ponggame/brick.dart';
+import 'package:ponggame/coverscreen.dart';
+
+class Homepage extends StatefulWidget {
+  const Homepage({super.key});
+
+  @override
+  State<Homepage> createState() => _HomepageState();
+}
+
+enum direction { UP, DOWN, LEFT, RIGHT }
+
+class _HomepageState extends State<Homepage> {
+  // Player variables (bottom brick)
+  double playerX = 0;
+
+  // Ball variables
+  double ballX = 0;
+  double ballY = 0;
+  var ballDirection = direction.DOWN;
+
+  // Game settings
+  bool gameHasStarted = false;
+
+  // Focus node for RawKeyboardListener
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _focusNode.dispose(); // Dispose of the FocusNode when the widget is removed
+    super.dispose();
+  }
+
+  void startGame() {
+    setState(() {
+      gameHasStarted = true;
+    });
+
+    Timer.periodic(Duration(milliseconds: 16), (timer) {
+      // Update direction
+      updateDirection();
+
+      // Move ball
+      moveBall();
+    });
+  }
+
+  void updateDirection() {
+    setState(() {
+      if (ballY >= 0.9) {
+        ballDirection = direction.UP;
+      } else if (ballY <= -0.9) {
+        ballDirection = direction.DOWN;
+      }
+    });
+  }
+
+  void moveBall() {
+    setState(() {
+      //vert movmement
+      if (ballDirection == direction.DOWN) {
+        ballY += 0.01;
+      } else if (ballDirection == direction.UP) {
+        ballY -= 0.01;
+      }
+      //horizontal movement
+      
+      if (ballDirection == direction.DOWN) {
+        ballY += 0.01;
+      } else if (ballDirection == direction.UP) {
+        ballY -= 0.01;
+      }
+
+
+    });
+  }
+
+  void moveLeft() {
+    setState(() {
+      playerX = (playerX - 0.1)
+          .clamp(-1.0, 1.0); // Prevent player from moving out of bounds
+    });
+  }
+
+  void moveRight() {
+    setState(() {
+      playerX = (playerX + 0.1)
+          .clamp(-1.0, 1.0); // Prevent player from moving out of bounds
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[900],
-      body: Center(
-        child: Stack(
-          children: [
-            Container(
-              alignment: Alignment(0, 0),
-              child: Container(
-                color: Colors.white,
-                height: 20,
-                width: MediaQuery.of(context).size.width / 5,
-              ),
-            )
-          ],
+    return RawKeyboardListener(
+      focusNode: _focusNode,
+      autofocus: true,
+      onKey: (event) {
+        if (event is RawKeyDownEvent) {
+          if (event.isKeyPressed(LogicalKeyboardKey.arrowLeft)) {
+            moveLeft();
+          } else if (event.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
+            moveRight();
+          }
+        }
+      },
+      child: GestureDetector(
+        onTap: startGame,
+        child: Scaffold(
+          backgroundColor: Colors.grey[900],
+          body: Center(
+            child: Stack(
+              children: [
+                // Tap to play
+                Coverscreen(
+                  gameHasStarted: gameHasStarted,
+                ),
+
+                // Top brick
+                MyBrick(x: 0, y: -0.9),
+
+                // Bottom brick
+                MyBrick(x: playerX, y: 0.9),
+
+                // Ball
+                MyBall(x: ballX, y: ballY),
+              ],
+            ),
+          ),
         ),
       ),
     );
