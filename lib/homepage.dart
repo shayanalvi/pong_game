@@ -23,7 +23,8 @@ class _HomepageState extends State<Homepage> {
   // Ball variables
   double ballX = 0;
   double ballY = 0;
-  var ballDirection = direction.DOWN;
+  var ballYDirection = direction.DOWN;
+  var ballXDirection = direction.LEFT;
 
   // Game settings
   bool gameHasStarted = false;
@@ -53,10 +54,18 @@ class _HomepageState extends State<Homepage> {
 
   void updateDirection() {
     setState(() {
+      // update vertical direction
       if (ballY >= 0.9) {
-        ballDirection = direction.UP;
+        ballYDirection = direction.UP;
       } else if (ballY <= -0.9) {
-        ballDirection = direction.DOWN;
+        ballYDirection = direction.DOWN;
+      }
+
+      //updating the horizontal direction
+      if (ballX >= 1) {
+        ballXDirection = direction.LEFT;
+      } else if (ballX <= -1) {
+        ballXDirection = direction.RIGHT;
       }
     });
   }
@@ -64,20 +73,18 @@ class _HomepageState extends State<Homepage> {
   void moveBall() {
     setState(() {
       //vert movmement
-      if (ballDirection == direction.DOWN) {
+      if (ballYDirection == direction.DOWN) {
         ballY += 0.01;
-      } else if (ballDirection == direction.UP) {
+      } else if (ballYDirection == direction.UP) {
         ballY -= 0.01;
       }
       //horizontal movement
-      
-      if (ballDirection == direction.DOWN) {
-        ballY += 0.01;
-      } else if (ballDirection == direction.UP) {
-        ballY -= 0.01;
+
+      if (ballXDirection == direction.LEFT) {
+        ballX -= 0.01;
+      } else if (ballXDirection == direction.RIGHT) {
+        ballX += 0.01;
       }
-
-
     });
   }
 
