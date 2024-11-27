@@ -19,6 +19,7 @@ enum direction { UP, DOWN, LEFT, RIGHT }
 class _HomepageState extends State<Homepage> {
   // Player variables (bottom brick)
   double playerX = 0;
+  double playerWidth = 0.4;
 
   // Ball variables
   double ballX = 0;
@@ -49,13 +50,37 @@ class _HomepageState extends State<Homepage> {
 
       // Move ball
       moveBall();
+
+      //check if player is dead
+      if (isPlayerDead()) {
+        timer.cancel();
+        resetGame();
+      }
+      ;
     });
+  }
+
+  void resetGame() {
+    setState(() {
+      gameHasStarted = false;
+      ballX = 0;
+      ballY = 0;
+      playerX = -0.2;
+    });
+  }
+
+  bool isPlayerDead() {
+    if (ballX >= 1) {
+      return true;
+    }
+
+    return false;
   }
 
   void updateDirection() {
     setState(() {
       // update vertical direction
-      if (ballY >= 0.9) {
+      if (ballY >= 0.9 && playerX >= ballX && playerX + playerWidth <= ballX) {
         ballYDirection = direction.UP;
       } else if (ballY <= -0.9) {
         ballYDirection = direction.DOWN;
@@ -129,10 +154,27 @@ class _HomepageState extends State<Homepage> {
                 ),
 
                 // Top brick
-                MyBrick(x: 0, y: -0.9),
+                MyBrick(
+                  x: 0,
+                  y: -0.9,
+                  brickWidth: playerWidth,
+                ),
+
+                Container(
+                  alignment: Alignment(playerX, 0.9),
+                  child: Container(
+                    width: 2,
+                    height: 20,
+                    color: Colors.red,
+                  ),
+                ),
 
                 // Bottom brick
-                MyBrick(x: playerX, y: 0.9),
+                MyBrick(
+                  x: playerX,
+                  y: 0.9,
+                  brickWidth: playerWidth,
+                ),
 
                 // Ball
                 MyBall(x: ballX, y: ballY),

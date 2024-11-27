@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 class MyBrick extends StatelessWidget {
   final x;
   final y;
+  final brickWidth;   // out of 2
 
-  MyBrick({this.x, this.y});
+  MyBrick({this.x, this.y, this.brickWidth});
 
   @override
   Widget build(BuildContext context) {
