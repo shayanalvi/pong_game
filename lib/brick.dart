@@ -4,8 +4,9 @@ class MyBrick extends StatelessWidget {
   final x;
   final y;
   final brickWidth; // out of 2
+  final thisIsEnemy;
 
-  MyBrick({this.x, this.y, this.brickWidth});
+  MyBrick({this.x, this.y, this.brickWidth, this.thisIsEnemy});
 
   @override
   Widget build(BuildContext context) {
@@ -14,9 +15,9 @@ class MyBrick extends StatelessWidget {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(10),
         child: Container(
-          color: Colors.white,
+          color: thisIsEnemy ? Colors.deepPurple[300] : Colors.pink[300],
           height: 20,
-          width: MediaQuery.of(context).size.width / 5,
+          width: MediaQuery.of(context).size.width * brickWidth / 2,
         ),
       ),
     );

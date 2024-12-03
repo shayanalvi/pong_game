@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:ponggame/ball.dart';
 import 'package:ponggame/brick.dart';
 import 'package:ponggame/coverscreen.dart';
+import 'package:ponggame/scorescreen.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -20,10 +21,12 @@ class _HomepageState extends State<Homepage> {
   // Player variables (bottom brick)
   double playerX = -0.2;
   double brickWidth = 0.4;
+  int playerScore = 0;
 
   //enemy variables
 
   double enemyX = -0.2;
+  int enemyScore = 0;
 
   // Ball variables
   double ballX = 0;
@@ -61,10 +64,23 @@ class _HomepageState extends State<Homepage> {
 
       // Check if player is dead
       if (isPlayerDead()) {
+        enemyScore++;
         timer.cancel(); // Stop the timer (game over)
-        _showDialog(); // Show the dialog
+        _showDialog(false); // Show the dialog
+      }
+      if (isEnemyDead()) {
+        playerScore++;
+        timer.cancel();
+        _showDialog(true);
       }
     });
+  }
+
+  bool isEnemyDead() {
+    if (ballY <= -1) {
+      return true;
+    }
+    return false;
   }
 
   void moveEnemy() {
@@ -73,7 +89,7 @@ class _HomepageState extends State<Homepage> {
     });
   }
 
-  void _showDialog() {
+  void _showDialog(bool enemyDied) {
     showDialog(
       context: context,
       barrierDismissible:
@@ -83,7 +99,7 @@ class _HomepageState extends State<Homepage> {
           backgroundColor: Colors.deepPurple,
           title: Center(
             child: Text(
-              "PURPLE WIN",
+              enemyDied ? "PURPLE WIN" : "Purple Win",
               style: TextStyle(color: Colors.white),
             ), // Text
           ), // Center
@@ -97,10 +113,13 @@ class _HomepageState extends State<Homepage> {
                 borderRadius: BorderRadius.circular(5),
                 child: Container(
                   padding: EdgeInsets.all(7),
-                  color: Colors.deepPurple[100],
+                  color: enemyDied ? Colors.pink[100] : Colors.deepPurple,
                   child: Text(
                     'PLAY AGAIN',
-                    style: TextStyle(color: Colors.deepPurple[800]),
+                    style: TextStyle(
+                      color:
+                          enemyDied ? Colors.pink[800] : Colors.deepPurple[800],
+                    ),
                   ), // Text
                 ), // Container
               ), // ClipRRect
@@ -117,6 +136,7 @@ class _HomepageState extends State<Homepage> {
       ballX = 0;
       ballY = 0;
       playerX = -0.2;
+      enemyX = -0.2;
     });
   }
 
@@ -206,11 +226,19 @@ class _HomepageState extends State<Homepage> {
                   gameHasStarted: gameHasStarted,
                 ),
 
+                //score screen
+
+                Scorescreen(
+                  gameHasStarted: gameHasStarted,
+                  enemyScore: enemyScore,
+                  playerScore: playerScore,
+                ),
                 // Top brick
                 MyBrick(
-                  x: 0,
+                  x: enemyX,
                   y: -0.9,
                   brickWidth: brickWidth,
+                  thisIsEnemy: true,
                 ),
 
                 // Bottom brick
@@ -218,10 +246,15 @@ class _HomepageState extends State<Homepage> {
                   x: playerX,
                   y: 0.9,
                   brickWidth: brickWidth,
+                  thisIsEnemy: false,
                 ),
 
                 // Ball
-                MyBall(x: ballX, y: ballY),
+                MyBall(
+                  x: ballX,
+                  y: ballY,
+                  gameHasStarted: gameHasStarted,
+                ),
                 Container(
                   alignment: Alignment(playerX, 0.9),
                   child: Container(
